@@ -1,4 +1,4 @@
-# Django settings for chirper project.
+# Django settings for sample project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -7,7 +7,7 @@ import os.path
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-PROJECT_NAME = "chirper"
+PROJECT_NAME = "sample"
 
 
 def ABS_PATH(*args):
@@ -22,7 +22,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'chirper.db',  # Or path to database file if using sqlite3.
+        'NAME': 'sample.db',  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -33,7 +33,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -139,7 +139,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django_stormpath',
     'bootstrap',
-    'chirper'
+    'sample'
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -177,21 +177,21 @@ LOGGING = {
 
 LOGIN_URL = '/login'
 
-AUTH_USER_MODEL = 'chirper.ChirperUser'
+AUTH_USER_MODEL = 'django_stormpath.StormpathUser'
 
 # stormpath-django
 STORMPATH_ID = os.environ['STORMPATH_API_KEY_ID']
 STORMPATH_SECRET = os.environ['STORMPATH_API_KEY_SECRET']
 STORMPATH_APPLICATION = os.environ['STORMPATH_APPLICATION']
+STORMPATH_ID_SITE_CALLBACK_URI = os.environ.get(
+    'STORMPATH_ID_SITE_CALLBACK_URI')
 
-# chirper
-STORMPATH_PREMIUM_GROUP = os.environ['STORMPATH_PREMIUM_GROUP']
-
-STORMPATH_ID_SITE_CALLBACK_URI = 'http://localhost:8000/stormpath-id-site-callback'
-
-LOGIN_REDIRECT_URL = '/django/login'
+LOGIN_REDIRECT_URL = '/'
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 USE_ID_SITE = True
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+ALLOWED_HOSTS = ['*']
