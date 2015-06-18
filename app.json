@@ -7,11 +7,5 @@
   "success_url": "/",
   "addons": [
     "stormpath"
-  ],
-  "env": {
-      "STORMPATH_ID_SITE_CALLBACK_URI": {
-          "description": "Stormpath callback uri for ID Site.",
-          "required": false
-      }
-  }
+  ]
 }
