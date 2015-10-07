@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     url(r'^django-register/$', register, name='register'),
     url(r'^django-login/$', stormpath_login, name='login'),
     url(r'^django-logout/$', stormpath_logout, name='logout'),
-    url(r'^cb/$', handle_id_site_callback, name='cb'),
+    url(r'^cb/$', stormpath_id_site_callback, name='cb'),
 )
 
 if settings.USE_ID_SITE:
