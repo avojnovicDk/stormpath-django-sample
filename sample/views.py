@@ -16,6 +16,73 @@ from django_stormpath.forms import StormpathUserCreationForm
 
 from sample.forms import SampleUserCustomInfoForm
 
+from stormpath.error import Error as StormpathError
+from stormpath.nonce import Nonce
+from stormpath.id_site import IdSiteCallbackResult
+
+
+def handle_id_site_callback(self, url_response):
+    try:
+        from urlparse import urlparse
+    except ImportError:
+        from urllib.parse import urlparse
+
+    import jwt
+    try:
+        jwt_response = urlparse(url_response).query.split('=')[1]
+    except Exception:  # because we wan't to catch everything
+        return None
+
+    api_key_secret = self._client.auth.secret
+
+    # validate signature
+    try:
+        decoded_data = jwt.decode(
+            jwt_response, api_key_secret, audience=self._client.auth.id,
+            algorithms=['HS256'])
+    except (jwt.DecodeError, jwt.ExpiredSignature):
+        return None
+
+    if 'err' in decoded_data:
+        raise StormpathError(decoded_data.get('err'))
+
+    nonce = Nonce(decoded_data['irt'])
+
+    # check if nonce is in cache already
+    # if it is throw an Exception
+    if self._store._cache_get(nonce.href):
+        raise ValueError('JWT has already been used.')
+
+    # store nonce in cache store
+    self._store._cache_put(href=nonce.href, data={'value': nonce.value})
+
+    # issuer = decoded_data['iss']
+    account_href = decoded_data['sub']
+    is_new_account = decoded_data['isNewSub']
+    state = decoded_data.get('state')
+    status = decoded_data.get('status')
+
+    if account_href:
+        account = self.accounts.get(account_href)
+        if self.has_account(account):
+            # We modify the internal parameter sp_http_status which indicates if an account
+            # is new (ie. just created). This is so we can take advantage of the account.is_new_account
+            # property
+            account.sp_http_status  # NOTE: this forces account retrieval and building of the actual Account object
+            account.__dict__['sp_http_status'] = 201 if is_new_account else 200
+        else:
+            account = None
+    else:
+        account = None
+    return IdSiteCallbackResult(account=account, state=state, status=status)
+
+
+def stormpath_id_site_callback(request):
+    from django_stormpath.id_site import handle_id_site_callback
+    ret = handle_id_site_callback(APPLICATION,
+            request.build_absolute_uri())
+    return handle_id_site_callback(request, ret)
+
 
 def stormpath_login(request):
     """Verify user login.
