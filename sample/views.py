@@ -21,7 +21,7 @@ from stormpath.nonce import Nonce
 from stormpath.id_site import IdSiteCallbackResult
 
 
-def handle_id_site_callback(self, url_response):
+def my_handle_id_site_callback(self, url_response):
     try:
         from urlparse import urlparse
     except ImportError:
@@ -79,7 +79,7 @@ def handle_id_site_callback(self, url_response):
 
 def stormpath_id_site_callback(request):
     from django_stormpath.id_site import handle_id_site_callback
-    ret = handle_id_site_callback(APPLICATION,
+    ret = my_handle_id_site_callback(APPLICATION,
             request.build_absolute_uri())
     return handle_id_site_callback(request, ret)
 
